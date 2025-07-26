@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visa Validator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.08);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1c1c1c;
+      font-weight: 600;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      background-color: #f9f9f9;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2d6cdf;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #1f52a3;
+    }
+    .loader {
+      margin: 20px auto;
+      border: 5px solid #e0e0e0;
+      border-top: 5px solid #2d6cdf;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      display: none;
+      margin-top: 25px;
+      background: #f1f6fd;
+      border-left: 4px solid #2d6cdf;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .error {
+      margin-top: 10px;
+      color: red;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Visa Card Validator</h2>
+    <div class="input-group">
+      <input type="text" id="cardNumber" placeholder="Card Number (e.g. 4539 1234 5678 9012)">
+      <div class="row">
+        <input type="text" id="expiry" placeholder="MM/YY">
+        <input type="text" id="cvv" placeholder="CVV">
+      </div>
+      <button onclick="validateCard()">Validate Card</button>
+    </div>
+    <div class="loader" id="loader"></div>
+    <div class="error" id="error"></div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function luhnCheck(number) {
+      const arr = number.replace(/\D/g, '').split('').reverse().map(x => parseInt(x));
+      return arr.reduce((sum, digit, idx) => {
+        if (idx % 2) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        return sum + digit;
+      }, 0) % 10 === 0;
+    }
+
+    function getRandomBalance() {
+      const balance = Math.random() * (140 - 150) + 150;
+      return balance.toFixed(2);
+    }
+4174480033623212
+    function getCountry() {
+      const countries = ['Poland', 'Germany', 'Italy', 'Netherlands', 'France', 'Spain', 'Czech Republic', 'Finland'];
+      return countries[Math.floor(Math.random() * countries.length)];
+    }
+
+    function getName() {
+      const names = ['Emma Novak', 'Luca Müller', 'Anna Rossi', 'Mateusz Nowak', 'Sara Schmidt'];
+      return names[Math.floor(Math.random() * names.length)];
+    }
+
+    function getTransaction() {
+      const merchants = ['Amazon', 'Netflix', 'Spotify', 'AliExpress', 'Uber', 'Steam'];
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      return `${day} ${month} ${year} – ${merchants[Math.floor(Math.random() * merchants.length)]}`;
+    }
+
+    function validateCard() {
+      const card = document.getElementById("cardNumber").value.replace(/\s+/g, '');
+      const expiry = document.getElementById("expiry").value;
+      const cvv = document.getElementById("cvv").value;
+      const error = document.getElementById("error");
+      const result = document.getElementById("result");
+      const loader = document.getElementById("loader");
+
+      error.textContent = '';
+      result.style.display = 'none';
+
+      if (!luhnCheck(card) || card.length < 13) {
+        error.textContent = "Invalid card number.";
+        return;
+      }
+
+      loader.style.display = 'block';
+
+      setTimeout(() => {
+        loader.style.display = 'none';
+        result.innerHTML = `
+          <strong>✅ Card is valid</strong><br><br>
+          • Cardholder: ${getName()}<br>
+          • Type: VISA Debit<br>
+          • Country: ${getCountry()}<br>
+          • Currency: USD<br>
+          • Balance: $${getRandomBalance()}<br>
+          • Last transaction: ${getTransaction()}
+        `;
+        result.style.display = 'block';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
